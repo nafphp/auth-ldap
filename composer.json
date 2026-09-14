@@ -1,0 +1,19 @@
+{
+  "name": "naf/auth-ldap",
+  "description": "Optional TLS LDAP provider using the existing NAF Auth contract.",
+  "type": "naf-plugin",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.3",
+    "ext-ldap": "*",
+    "naf/auth": "^0.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "Naf\\Auth\\Ldap\\": "src/"
+    }
+  },
+  "scripts": {
+    "test": "php tests/run.php"
+  }
+}
