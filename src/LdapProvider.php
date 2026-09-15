@@ -11,9 +11,15 @@ use Naf\Auth\Identity\IdentityInterface;
 use Naf\Auth\Provider\ProviderInterface;
 use SensitiveParameter;
 
-/** The host owns explicit subject-to-account links. There is no e-mail matching or auto-provisioning. */
+/**
+ * Authenticate explicitly linked accounts; the host owns subject-to-account mapping.
+ */
 final class LdapProvider implements ProviderInterface
 {
+    /**
+     * @param Closure(string): ?string $accountForSubject Maps a directory subject to an account identifier.
+     * @param Closure(string): ?string $subjectForAccount Maps an account identifier to a directory subject.
+     */
     public function __construct(
         private DirectoryInterface $directory,
         private Closure $accountForSubject,
@@ -33,13 +39,18 @@ final class LdapProvider implements ProviderInterface
         ) {
             return null;
         }
+
         $subject = $this->directory->authenticate($credentials->username, $credentials->password);
         if ($subject === null) {
             return null;
         }
-        $id = ($this->accountForSubject)($subject);
 
-        return is_string($id) && $id !== '' ? $this->accounts->find($id) : null;
+        $accountIdentifier = ($this->accountForSubject)($subject);
+        if (!is_string($accountIdentifier) || $accountIdentifier === '') {
+            return null;
+        }
+
+        return $this->accounts->find($accountIdentifier);
     }
 
     public function find(string $identifier): ?IdentityInterface
